@@ -2,6 +2,8 @@ import "../styles/Terminal.css"
 
 import React from 'react'
 import { useState, useRef, useEffect, KeyboardEvent } from 'react'
+import { initializeApp } from "firebase/app"
+import { getDatabase, ref, set, push } from "firebase/database"
 
 function Terminal () {
     const [previous, setPrevious] = useState<string>("")
@@ -12,6 +14,20 @@ function Terminal () {
     const preRef = useRef<HTMLPreElement>(null)
 
     const standardText = "<span class='name'>guest</span><span class='at'>@</span><span class='location'>~/maxwell/portfolio</span><span class='symbols'> $ </span>"
+
+    // firebase api key is *not* sensitive info
+    const firebaseConfig = {
+        apiKey: "AIzaSyC5UksLfFAB6nB8AewhkEkXIgBQIkaHf0Y",
+        authDomain: "messages-2818b.firebaseapp.com",
+        projectId: "messages-2818b",
+        storageBucket: "messages-2818b.appspot.com",
+        messagingSenderId: "174919313993",
+        appId: "1:174919313993:web:375b27233c7d8d5ecdad98"
+      };
+
+    const app = initializeApp(firebaseConfig)
+    const db = getDatabase(app)
+
 
     useEffect(() => {
         if(preRef.current != null) {
@@ -29,9 +45,9 @@ function Terminal () {
         }
     }, [previous])
 
-    const handleCommandInput = (e: KeyboardEvent<HTMLInputElement>) => {
+    const handleCommandInput = async (e: KeyboardEvent<HTMLInputElement>) => {
         if(e.key === "Enter") {
-            const command = input
+            const command = input.split(" ")[0]
             let result = ""
 
             setInput("")
@@ -48,6 +64,18 @@ function Terminal () {
                 case "contact":
                     result = "<br><br>" + contactCommand() + "<br>"
                     break
+                case "message":
+                    const email = input.split(" ")[1]
+                    const message = input.substring(input.indexOf('"') + 1, input.lastIndexOf('"'))
+
+                    if(email == null || message == null || message.length < 1) {
+                        result = "<br><br>Incorrect usage of message command,<br>correct usage: message youremail@gmail.com \"your message here, within quotations!\"<br>"
+                        break
+                    } else {
+                        result = "<br><br>" + await messageCommand(email, message) + "<br>"
+                        break
+                    }
+
                 case "clear":
                     setPrevious("")
                     return
@@ -63,19 +91,29 @@ function Terminal () {
         }
      }
 
+    const messageCommand = async (email: string, message: string) => {
+        let result = "Message successfully sent!"
+        const dbRef = ref(db, "/messages")
+        await push(dbRef, {email: email, message: message})
+        .catch(e => {
+            result = "Message couldn't be sent, Error: " + e.message + "<br>Apologies for the inconvenience, please email me at: cs.max@outlook.com"
+        })
+        return result
+    }
+
     const contactCommand = () => {
-        return "You can email me at: <u>cs.max@outlook.com</u><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"type your message (make sure to use quotation marks)\""
+        return "You can email me at: <u>cs.max@outlook.com</u><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"type your message (make sure to use quotation marks around the message)\""
     }
 
     const projectsCommand = () => {
-        const socialMedia = "<u>Social Media</u><br><br>&nbsp&nbspSimple social media platform that allows anyone to create an account, <br>&nbsp&nbsppost a message, reply to others, like/comment on posts, and more.<br><br>&nbsp&nbsp&nbspLive Site - https://social-chat-project.web.app <br>&nbsp&nbsp&nbspRepository - https://github.com/robertsmaxwell/chat"
-        const weatherDashboard = "<u>Weather Dashboard</u><br><br>&nbsp&nbspWeather dashboard that allows you to search any city and get a weekly/hourly forecast.<br>&nbsp&nbspUtilizies two separate third-party APIs for city search/autocomplete and retrieving weather data.<br><br>&nbsp&nbsp&nbspLive Site - https://robertsmaxwell.github.io/weather<br>&nbsp&nbsp&nbspRepository - https://github.com/robertsmaxwell/weather"
+        const socialMedia = "<u>Social Media</u><br><br>&nbsp&nbspSimple social media platform that allows anyone to create an account, <br>&nbsp&nbsppost a message, reply to others, like/comment on posts, and more.<br><br>&nbsp&nbsp&nbspLive Site - <a href='https://social-chat-project.web.app' target='_blank'>https://social-chat-project.web.app</a> <br>&nbsp&nbsp&nbspRepository - <a href='https://github.com/robertsmaxwell/chat' target='_blank'>https://github.com/robertsmaxwell/chat</a>"
+        const weatherDashboard = "<u>Weather Dashboard</u><br><br>&nbsp&nbspWeather dashboard that allows you to search any city and get a weekly/hourly forecast.<br>&nbsp&nbspUtilizies two separate third-party APIs for city search/autocomplete and retrieving weather data.<br><br>&nbsp&nbsp&nbspLive Site - <a href='https://robertsmaxwell.github.io/weather' target='_blank'>https://robertsmaxwell.github.io/weather</a><br>&nbsp&nbsp&nbspRepository - <a href='https://github.com/robertsmaxwell/weather' target='_blank'>https://github.com/robertsmaxwell/weather</a>"
 
-        return socialMedia + "<br><br>" + weatherDashboard + "<br><br>" + "Check out more of my projects on GitHub - https://github.com/robertsmaxwell"
+        return socialMedia + "<br><br>" + weatherDashboard + "<br><br> Check out more of my projects on GitHub - <a href='https://github.com/robertsmaxwell' target='_blank'>https://github.com/robertsmaxwell</a>"
     }
 
     const aboutCommand = () => {
-        return "Hey! My name's Maxwell Roberts, I'm a Frontend Developer that mainly uses the React Framework.<br>I've been programming for over 2 years and I enjoy writing clean and efficient code. I like to stay up<br>to date on things like React, Redux, TypeScript, Python, and more.<br><br>Here are some of my social profiles,<br><br>&nbsp&nbspGitHub - https://github.com/robertsmaxwell<br>&nbsp&nbspLinkedIn - https://linkedin.com/in/robertsmaxwell"
+        return "Hey! My name's Maxwell Roberts, I'm a Frontend Developer that mainly uses the React Framework.<br>I've been programming for over 2 years and I enjoy writing clean and efficient code. I like to stay up<br>to date on things like React, Redux, TypeScript, Python, and more.<br><br>Here are some of my social profiles,<br><br>&nbsp&nbspGitHub - <a href='https://github.com/robertsmaxwell' target='_blank'>https://github.com/robertsmaxwell</a><br>&nbsp&nbspLinkedIn - <a href='https://linkedin.com/in/robertsmaxwell' target='_blank'>https://linkedin.com/in/robertsmaxwell</a>"
     }
 
     const helpCommand = () => {

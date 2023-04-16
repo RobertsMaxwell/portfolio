@@ -66,6 +66,10 @@
     caret-color: white;
 }
 
+.terminal a {
+    color: inherit;
+}
+
 ::-webkit-scrollbar {
     width: 15px;
 }
