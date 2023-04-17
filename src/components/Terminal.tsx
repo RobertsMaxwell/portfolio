@@ -132,7 +132,7 @@ function Terminal () {
     }
 
     const helpCommand = () => {
-        return "List of commands:<br><br>&nbsp&nbsp'about' - Get to know a little about me<br>&nbsp&nbsp'projects' - View a list of my recent projects<br>&nbsp&nbsp'contact' - Get in touch with me<br>&nbsp&nbsp'message' - Send me a message directly<br>&nbsp&nbsp'clear' - Clear the terminal screen<br>&nbsp&nbsp'welcome' - The welcome message<br>&nbsp&nbsp'help' - List of commands"
+        return "List of commands:<br><br>&nbsp&nbsp'about' - Get to know a little about me<br>&nbsp&nbsp'projects' - View a list of my recent projects<br>&nbsp&nbsp'contact' - Get in touch with me<br>&nbsp&nbsp'message' - Send me a message directly<br>&nbsp&nbsp'clear' - Clear the terminal screen<br>&nbsp&nbsp'repo' - View this projects repo<br>&nbsp&nbsp'welcome' - The welcome message<br>&nbsp&nbsp'help' - List of commands"
     }
 
     const welcomeCommand = () => {
