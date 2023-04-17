@@ -6,7 +6,8 @@
 .App {
   height: 100vh;
   width: 100vw;
-  background-color: #263238;
+  /* background-color: #263238; */
+  background-color: #2B303B;
   box-sizing: border-box;
   padding: 12px;
 }

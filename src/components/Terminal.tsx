@@ -1,9 +1,8 @@
 import "../styles/Terminal.css"
 
-import React from 'react'
-import { useState, useRef, useEffect, KeyboardEvent } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, set, push } from "firebase/database"
+import { getDatabase, ref, push } from "firebase/database"
 
 function Terminal () {
     const [previous, setPrevious] = useState<string>("")
@@ -28,11 +27,17 @@ function Terminal () {
     const app = initializeApp(firebaseConfig)
     const db = getDatabase(app)
 
+    const copyEmailToCipboard = () => {
+    navigator.clipboard.writeText("cs.max@outlook.com")
+    .catch(() => {alert("Failed  to copy email to clipboard")})
+    }
 
     useEffect(() => {
         if(preRef.current != null) {
             preRef.current.innerHTML = standardText
         }
+
+        handleCommandInput(true)
     }, [])
 
     useEffect(() => {
@@ -43,58 +48,68 @@ function Terminal () {
         if(terminalRef.current != null) {
             terminalRef.current.scrollTo(0, terminalRef.current.scrollHeight)
         }
+
+        const elements = document.getElementsByClassName("copy_email") as HTMLCollectionOf<HTMLElement>
+        for(let i = 0; i < elements.length; i++) {
+            if(elements[i].onclick == null) {
+                elements[i].onclick = copyEmailToCipboard
+            }
+        }
+
     }, [previous])
 
-    const handleCommandInput = async (e: KeyboardEvent<HTMLInputElement>) => {
-        if(e.key === "Enter") {
-            const command = input.split(" ")[0]
-            let result = ""
+    const handleCommandInput = async (start: boolean = false) => {
+        const fullInput = start ? "welcome" : input
+        const command =  fullInput.split(" ")[0]
+        let result = ""
 
-            setInput("")
-            switch(command.toLowerCase()) {
-                case "welcome":
-                    result = "<br><br>" + welcomeCommand() + "<br>"
-                    break
-                case "about":
-                    result = "<br><br>" + aboutCommand() + "<br>"
-                    break
-                case "projects":
-                    result = "<br><br>" + projectsCommand() + "<br>"
-                    break
-                case "contact":
-                    result = "<br><br>" + contactCommand() + "<br>"
-                    break
-                case "message":
-                    const email = input.split(" ")[1]
-                    const message = input.substring(input.indexOf('"') + 1, input.lastIndexOf('"'))
+        setInput("")
+        switch(command.toLowerCase()) {
+            case "welcome":
+                result = "<br><br>" + welcomeCommand() + "<br>"
+                break
+            case "about":
+                result = "<br><br>" + aboutCommand() + "<br>"
+                break
+            case "projects":
+                result = "<br><br>" + projectsCommand() + "<br>"
+                break
+            case "contact":
+                result = "<br><br>" + contactCommand() + "<br>"
+                break
+            case "message":
+                const email = fullInput.split(" ")[1]
+                const message = fullInput.substring(fullInput.indexOf('"') + 1, fullInput.lastIndexOf('"'))
 
-                    if(email == null || message == null || message.length < 1) {
-                        result = "<br><br>Incorrect usage of message command,<br>correct usage: message youremail@gmail.com \"your message here, within quotations!\"<br>"
-                        break
-                    } else {
-                        result = "<br><br>" + await messageCommand(email, message) + "<br>"
-                        break
-                    }
+                if(email == null || message == null || message.length < 1) {
+                    result = "<br><br>Incorrect usage of message command,<br>correct usage: message youremail@gmail.com \"your message here, within quotations!\"<br>"
+                    break
+                } else {
+                    result = "<br><br>" + await messageCommand(email, message) + "<br>"
+                    break
+                }
 
-                case "clear":
-                    setPrevious("")
-                    return
-                case "help":
-                    result = "<br><br>" + helpCommand() + "<br>"
-                    break
-                case "":
-                    break
-                default:
-                    result = `<br><br> '${command}' is not a valid command,<br>type 'help' to see the list of commands. <br>`
-            }
-            setPrevious(previous + standardText + input + result + "<br>")
+            case "clear":
+                setPrevious("")
+                return
+            case "help":
+                result = "<br><br>" + helpCommand() + "<br>"
+                break
+            case "repo":
+                result = "<br><br>Here's the repository for this portfolio project: <a href='https://github.com/robertsmaxwell/portfolio' target='_blank'>https://github.com/robertsmaxwell/portfolio</a><br>"
+                break
+            case "":
+                break
+            default:
+                result = `<br><br> '${command}' is not a valid command,<br>type 'help' to see the list of commands. <br>`
         }
+        setPrevious(previous + standardText + fullInput + result + "<br>")
      }
 
     const messageCommand = async (email: string, message: string) => {
         let result = "Message successfully sent!"
         const dbRef = ref(db, "/messages")
-        await push(dbRef, {email: email, message: message})
+        await push(dbRef, {email: email, message: message, time: new Date().getTime()})
         .catch(e => {
             result = "Message couldn't be sent, Error: " + e.message + "<br>Apologies for the inconvenience, please email me at: cs.max@outlook.com"
         })
@@ -102,7 +117,7 @@ function Terminal () {
     }
 
     const contactCommand = () => {
-        return "You can email me at: <u>cs.max@outlook.com</u><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"type your message (make sure to use quotation marks around the message)\""
+        return "You can email me at: <button class='copy_email'><u>cs.max@outlook.com</u> <small>(Click to copy)</small></button><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"type your message (make sure to use quotation marks around the message)\""
     }
 
     const projectsCommand = () => {
@@ -117,7 +132,7 @@ function Terminal () {
     }
 
     const helpCommand = () => {
-        return "List of commands:<br><br>&nbsp&nbsp'about' - Get to know a little about me<br>&nbsp&nbsp'projects' - View a list of my recent projects<br>&nbsp&nbsp'contact' - Get in touch with me<br>&nbsp&nbsp'clear' - Clear the terminal screen<br>&nbsp&nbsp'welcome' - The welcome message<br>&nbsp&nbsp'help' - List of commands"
+        return "List of commands:<br><br>&nbsp&nbsp'about' - Get to know a little about me<br>&nbsp&nbsp'projects' - View a list of my recent projects<br>&nbsp&nbsp'contact' - Get in touch with me<br>&nbsp&nbsp'message' - Send me a message directly<br>&nbsp&nbsp'clear' - Clear the terminal screen<br>&nbsp&nbsp'welcome' - The welcome message<br>&nbsp&nbsp'help' - List of commands"
     }
 
     const welcomeCommand = () => {
@@ -129,7 +144,7 @@ function Terminal () {
 ╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗
  ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝</pre><br>`
 
-        const normalMessage = `<pre>    Type 'about' to learn more about me<br>    Type 'projects' to see some of my recent projects<br>    Type 'contact' to get in touch<br><br>    Type 'help' to see the full list of commands<pre>`
+        const normalMessage = `<pre>Welcome to my portfolio site! Feel free to check out some of my recent projects.<br><br>    Type 'about' to learn more about me<br>    Type 'projects' to see some of my recent projects<br>    Type 'contact' to get in touch<br><br>    Type 'help' to see the full list of commands<br>    Type 'repo' to see this projects repo<pre>`
 
         return fancyMessage + normalMessage
     }
@@ -139,7 +154,11 @@ function Terminal () {
             <p ref={historyRef} />
             <div className="input_line">
                 <pre ref={preRef} />
-                <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleCommandInput} autoFocus onBlur={e => e.target.focus()} />
+                <input type="text" id="command_input" value={input} onChange={e => setInput(e.target.value)} onKeyDown={(e) => {
+                    if(e.key === "Enter") {
+                        handleCommandInput()
+                    }
+                }} autoFocus onBlur={e => e.target.focus()} />
             </div>
         </div>
     );

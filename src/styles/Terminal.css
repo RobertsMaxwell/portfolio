@@ -70,6 +70,21 @@
     color: inherit;
 }
 
+
+.terminal button {
+    font-size: inherit;
+    color: inherit;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    z-index: 99;
+}
+
+.terminal button:hover {
+    cursor: pointer;
+    filter: brightness(.7);
+}
+
 ::-webkit-scrollbar {
     width: 15px;
 }
