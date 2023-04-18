@@ -82,7 +82,7 @@ function Terminal () {
                 const message = fullInput.substring(fullInput.indexOf('"') + 1, fullInput.lastIndexOf('"'))
 
                 if(email == null || message == null || message.length < 1) {
-                    result = "<br><br>Incorrect usage of message command,<br>correct usage: message youremail@gmail.com \"your message here, within quotations!\"<br>"
+                    result = "<br><br>Incorrect usage of message command,<br>correct usage: message your_email@gmail.com \"Your message here\" (Within quotations)<br>"
                     break
                 } else {
                     result = "<br><br>" + await messageCommand(email, message) + "<br>"
@@ -117,7 +117,7 @@ function Terminal () {
     }
 
     const contactCommand = () => {
-        return "You can email me at: <button class='copy_email'><u>cs.max@outlook.com</u> <small>(Click to copy)</small></button><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"type your message (make sure to use quotation marks around the message)\""
+        return "You can email me at: <button class='copy_email'><u>cs.max@outlook.com</u> <small>(Click to copy)</small></button><br><br>Or you can send me a message right now using the 'message' command<br><br>&nbsp&nbspUsage:<br>&nbsp&nbsp&nbsp message your_email@gmail.com \"Your message here\" (Within quotations)"
     }
 
     const projectsCommand = () => {
