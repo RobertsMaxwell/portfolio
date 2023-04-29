@@ -128,7 +128,7 @@ function Terminal () {
     }
 
     const aboutCommand = () => {
-        return "Hey! My name's Maxwell Roberts, I'm a Frontend Developer that mainly uses the React Framework.<br>I've been programming for over 2 years and I enjoy writing clean and efficient code. I like to stay up<br>to date on things like React, Redux, TypeScript, Python, and more.<br><br>Here are some of my social profiles,<br><br>&nbsp&nbspGitHub - <a href='https://github.com/robertsmaxwell' target='_blank'>https://github.com/robertsmaxwell</a><br>&nbsp&nbspLinkedIn - <a href='https://linkedin.com/in/robertsmaxwell' target='_blank'>https://linkedin.com/in/robertsmaxwell</a>"
+        return "Hey! My name's Maxwell Roberts, I'm a Frontend Developer that mainly uses the React Framework.<br>I've been programming for over 2 years and I enjoy writing clean and efficient code. I like to stay up<br>to date on things like React, Redux, TypeScript, Python, and more.<br><br>Here are some of my social profiles,<br><br>&nbsp&nbspGitHub - <a href='https://github.com/robertsmaxwell' target='_blank'>https://github.com/robertsmaxwell</a>"
     }
 
     const helpCommand = () => {
